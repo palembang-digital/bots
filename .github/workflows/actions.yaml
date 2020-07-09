@@ -1,0 +1,22 @@
+name: Palembang Digital Bots
+on:
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: '0 9 * * *'
+jobs:
+  demang-lebar-daun:
+    name: Counting Telegram group members
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-go@v2
+      with:
+        go-version: '^1.14.2'
+    - run: go run ./cmd/demang-lebar-daun/main.go
+      env:
+        TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_DEMANG_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_PATAL_CHAT_ID }}
+        SHEETS_CREDENTIALS: ${{ secrets.MEMBERS_SHEETS_CREDENTIALS }}
+        SHEETS_SPREADSHEET_ID: ${{ secrets.MEMBERS_SHEETS_SPREADSHEET_ID }}
