@@ -4,7 +4,7 @@ on:
     branches:
       - master
   schedule:
-    - cron: '0 9 * * *'
+    - cron: '30 3 * * *'
 jobs:
   demang-lebar-daun:
     name: Counting Telegram group members
