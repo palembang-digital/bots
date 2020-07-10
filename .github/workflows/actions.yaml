@@ -1,10 +1,7 @@
 name: Palembang Digital Bots
 on:
-  push:
-    branches:
-      - master
   schedule:
-    - cron: '30 3 * * *'
+    - cron: '0 2 * * *'
 jobs:
   demang-lebar-daun:
     name: Counting Telegram group members
