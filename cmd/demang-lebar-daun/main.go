@@ -54,7 +54,7 @@ func main() {
 
 	log.Println("Writing to Google Sheets...")
 	valueRange := &sheets.ValueRange{
-		Values: [][]interface{}{{time.Now().UTC(), membersCount}},
+		Values: [][]interface{}{{time.Now().UTC(), time.Now().Month(), membersCount}},
 	}
 	resp, err := sheetsService.Spreadsheets.Values.
 		Append(cfg.SheetsSpreadsheetID, cfg.SheetsSpreadsheetRange, valueRange).
