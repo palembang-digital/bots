@@ -13,8 +13,8 @@ type Config struct {
 	TelegramChatID int64  `required:"true" split_words:"true"`
 	TelegramDebug  bool   `split_words:"true"`
 
-	SheetsCredentials      string `required:"true" split_words:"true"`
-	SheetsSpreadsheetID    string `required:"true" split_words:"true"`
+	SheetsCredentials      string `split_words:"true"`
+	SheetsSpreadsheetID    string `split_words:"true"`
 	SheetsSpreadsheetRange string `split_words:"true" default:"Telegram Bot"`
 }
 
