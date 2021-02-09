@@ -20,7 +20,7 @@ jobs:
         SHEETS_CREDENTIALS: ${{ secrets.MEMBERS_SHEETS_CREDENTIALS }}
         SHEETS_SPREADSHEET_ID: ${{ secrets.MEMBERS_SHEETS_SPREADSHEET_ID }}
 
- events-bot:
+  events-bot:
     name: Send today Patal events to Telegram group
     runs-on: ubuntu-latest
     steps:
