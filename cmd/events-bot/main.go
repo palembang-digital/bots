@@ -79,7 +79,7 @@ func main() {
 		}
 	}
 
-	log.Println("Job completed. KTHXBYE!")
+	log.Println("Job completed. KTHXBYE! 👋")
 }
 
 // getPatalEvents gets the list of Patal Events from Patal API
