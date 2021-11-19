@@ -2,7 +2,7 @@ name: Palembang Digital Bots
 
 on:
   schedule:
-    - cron: '0 2 * * *'
+    - cron: "0 1 * * *"
 
 jobs:
   demang-lebar-daun:
