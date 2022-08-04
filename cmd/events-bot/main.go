@@ -23,6 +23,15 @@ Jam {{scheduledStartTime .ScheduledStart}}
 Yuk join! 🤗`
 )
 
+var (
+	thisWeekEventMesagge = `Event Palembang Digital Minggu Ini 🥳
+{{range .Events}}
+<b><a href="{{.RegistrationURL}}">{{.Title}}</a></b>
+Jam {{scheduledStartTime .ScheduledStart}}
+{{end}}
+Yuk join! 🤗`
+)
+
 func main() {
 	var cfg = configs.Get()
 
@@ -35,48 +44,90 @@ func main() {
 	log.Printf("All Patal events: %+v", allEvents)
 
 	todayEvents := []models.Event{}
+nextWeekEvents := []models.Event{}
+
 	for _, event := range allEvents {
 		if dateEqual(time.Now(), *event.ScheduledStart) {
 			todayEvents = append(todayEvents, event)
 		}
+		
+		if (time.Now().Weekday.String() == "Monday" 
+			&& weekEqual(time.Now(), *event.ScheduledStart)){
+			nextWeekEvents = append(nextWeekEvents, event)
+		}
 	}
 	log.Printf("Today events: %+v", todayEvents)
+	log.Printf("Next week events: %+v", nextWeekEvents)
 
-	if len(todayEvents) > 0 {
+	if ( (len(todayEvents) > 0) ||  len(nextWeekEvents) > 0) {
 		log.Println("Authenticating Telegram bot...")
 		bot, err := telegram.New(cfg.TelegramToken, cfg.TelegramChatID, cfg.TelegramDebug)
 		if err != nil {
 			log.Panic(err)
 		}
 
-		tmpl, err := template.New("today-events").Funcs(template.FuncMap{
-			"scheduledStartTime": func(scheduledStart time.Time) string {
-				loc, err := time.LoadLocation("Asia/Jakarta")
-				if err != nil {
-					return scheduledStart.Format("15:04") + " GMT+00"
-				}
-				return scheduledStart.In(loc).Format("15:04") + " WIB"
-			},
-		}).
-			Parse(todayEventMesagge)
-		if err != nil {
-			log.Panic(err)
+		if(len(todayEvents) > 0){
+			tmpl, err := template.New("today-events").Funcs(template.FuncMap{
+				"scheduledStartTime": func(scheduledStart time.Time) string {
+					loc, err := time.LoadLocation("Asia/Jakarta")
+					if err != nil {
+						return scheduledStart.Format("15:04") + " GMT+00"
+					}
+					return scheduledStart.In(loc).Format("15:04") + " WIB"
+				},
+			}).
+				Parse(todayEventMesagge)
+			if err != nil {
+				log.Panic(err)
+			}
+
+			var buf bytes.Buffer
+			if err := tmpl.Execute(&buf, map[string]interface{}{
+				"Date":   time.Now().Format("02/01/2006"),
+				"Events": todayEvents,
+			}); err != nil {
+				log.Panic(err)
+			}
+
+			message := buf.String()
+
+			log.Println("Send message", message)
+			if err := bot.Send(cfg.TelegramChatID, message); err != nil {
+				log.Panic(err)
+			}
 		}
 
-		var buf bytes.Buffer
-		if err := tmpl.Execute(&buf, map[string]interface{}{
-			"Date":   time.Now().Format("02/01/2006"),
-			"Events": todayEvents,
-		}); err != nil {
-			log.Panic(err)
+		if(len(nextWeekEvents) > 0){
+			tmpl, err := template.New("this-week-events").Funcs(template.FuncMap{
+				"scheduledStartTime": func(scheduledStart time.Time) string {
+					loc, err := time.LoadLocation("Asia/Jakarta")
+					if err != nil {
+						return scheduledStart.Format("15:04") + " GMT+00"
+					}
+					return scheduledStart.In(loc).Format("15:04") + " WIB"
+				},
+			}).
+				Parse(thisWeekEventMesagge)
+			if err != nil {
+				log.Panic(err)
+			}
+
+			var buf bytes.Buffer
+			if err := tmpl.Execute(&buf, map[string]interface{}{
+				"Date":   time.Now().Format("02/01/2006"),
+				"Events": nextWeekEvents,
+			}); err != nil {
+				log.Panic(err)
+			}
+
+			message := buf.String()
+
+			log.Println("Send message", message)
+			if err := bot.Send(cfg.TelegramChatID, message); err != nil {
+				log.Panic(err)
+			}
 		}
 
-		message := buf.String()
-
-		log.Println("Send message", message)
-		if err := bot.Send(cfg.TelegramChatID, message); err != nil {
-			log.Panic(err)
-		}
 	}
 
 	log.Println("Job completed. KTHXBYE!")
@@ -107,4 +158,8 @@ func dateEqual(date1, date2 time.Time) bool {
 	y1, m1, d1 := date1.Date()
 	y2, m2, d2 := date2.Date()
 	return y1 == y2 && m1 == m2 && d1 == d2
+}
+
+func weekEqual(date1, date2 time.time) bool {
+	return date2.After(date1) && date2.Before(date1.AddDate(0,0,7))
 }
